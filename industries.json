@@ -1,0 +1,62 @@
+{
+  "mech_engineering": {
+    "name": "Mechanical & Mechatronics Engineering",
+    "keywords": [
+      "mechanical engineering companies",
+      "industrial engineering companies",
+      "manufacturing companies",
+      "automation companies",
+      "engineering consulting firms"
+    ]
+  },
+  "tech": {
+    "name": "Technology",
+    "keywords": [
+      "software companies",
+      "IT companies",
+      "tech startups",
+      "web development companies",
+      "mobile app development companies"
+    ]
+  },
+  "fintech": {
+    "name": "FinTech",
+    "keywords": [
+      "fintech companies",
+      "financial technology companies",
+      "payment solutions companies",
+      "blockchain companies",
+      "insurtech companies"
+    ]
+  },
+  "ict": {
+    "name": "ICT",
+    "keywords": [
+      "ICT companies",
+      "telecommunications companies",
+      "networking companies",
+      "data centre companies",
+      "IT infrastructure companies"
+    ]
+  },
+  "green_energy": {
+    "name": "Green Energy",
+    "keywords": [
+      "renewable energy companies",
+      "solar energy companies",
+      "wind energy companies",
+      "sustainability consulting firms",
+      "energy efficiency companies"
+    ]
+  },
+  "ai": {
+    "name": "AI",
+    "keywords": [
+      "AI startups",
+      "machine learning companies",
+      "deep learning companies",
+      "computer vision companies",
+      "natural language processing companies"
+    ]
+  }
+}
