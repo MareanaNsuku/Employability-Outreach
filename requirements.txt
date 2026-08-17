@@ -1,0 +1,17 @@
+beautifulsoup4
+requests
+dnspython
+playwright
+python-dotenv
+pandas
+lxml
+cryptography==41.0.7
+cffi
+pycparser
+six
+soupsieve
+typing_extensions
+urllib3
+certifi
+charset-normalizer
+idna
