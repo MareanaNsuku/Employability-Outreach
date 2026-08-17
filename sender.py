@@ -15,6 +15,30 @@ load_dotenv()
 # ---------- Force send override ----------
 FORCE_SEND = False
 
+
+
+def sanitize_email(email_str):
+    """Split and choose the best valid email from a comma-separated string."""
+    import re
+    if not email_str:
+        return ''
+    candidates = re.split(r'[,;,\s]+', email_str.strip())
+    junk_patterns = ['user@domain.com', 'your@email.com', 'example.com', 'sentry', 'wixpress', 'noreply', 'no-reply', '.png', '.jpg', 'ingest']
+    valid = []
+    for c in candidates:
+        c = c.strip().lower()
+        if not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$', c):
+            continue
+        if any(p in c for p in junk_patterns):
+            continue
+        valid.append(c)
+    if not valid:
+        return ''
+    # Prefer .co.za
+    valid.sort(key=lambda e: (- (e.endswith('.co.za')), e))
+    return valid[0]
+
+
 def set_force_send(val: bool):
     global FORCE_SEND
     FORCE_SEND = val
@@ -99,7 +123,9 @@ def send_batch(service, my_info, max_daily=50, min_delay=8, max_delay=10, max_ba
     sent = 0
     for contact in contacts:
         contact = dict(contact)
-        email = contact['email']
+        email = sanitize_email(contact['email'])
+        if not email:
+            continue
         subject, body = generate_email(contact, my_info, industry_key=contact.get('industry', 'engineering'))
         success, reason = _send_msg(email, subject, body, attachments)
         if success:
@@ -129,7 +155,9 @@ def send_followups(service, my_info, attachments=None):
         return
     for contact in contacts:
         contact = dict(contact)
-        email = contact['email']
+        email = sanitize_email(contact['email'])
+        if not email:
+            continue
         subject, body = generate_followup(contact, my_info, industry_key=contact.get('industry', 'engineering'))
         success, _ = _send_msg(email, subject, body, attachments)
         if success:

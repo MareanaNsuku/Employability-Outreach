@@ -1,0 +1,73 @@
+name: OutreachBot Daily
+
+on:
+  schedule:
+    - cron: '0 7 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run-outreach:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+
+      - name: Prepare environment
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+          MY_EMAIL: ${{ secrets.MY_EMAIL }}
+          MY_APP_PASSWORD: ${{ secrets.MY_APP_PASSWORD }}
+        run: |
+          echo "$ENV_FILE" > .env
+          echo "MY_EMAIL=$MY_EMAIL" >> .env
+          echo "MY_APP_PASSWORD=$MY_APP_PASSWORD" >> .env
+          mkdir -p data logs industry_data
+
+      - name: Clean existing email data
+        run: |
+          python clean_emails.py
+
+      - name: Run pipeline (scrape + import + send)
+        env:
+          MAX_DAILY_EMAILS: 50
+          FORCE_SEND: "1"
+        run: |
+          CITY="Cape Town"
+          for bot in green_energy_bot ai_bot; do
+            python company_finder/${bot}.py "$CITY"
+          done
+          python main.py import industry_data/green_energy/green_energy_gmaps.csv 2>/dev/null || true
+          python main.py import industry_data/ai/ai_gmaps.csv 2>/dev/null || true
+          python main.py send --batch 10 --force
+
+      - name: Commit database and logs back to repo
+        if: always()
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add -f data/outreach.db logs/ || true
+          git commit -m "Update database and logs" || echo "No changes to commit"
+          git push
