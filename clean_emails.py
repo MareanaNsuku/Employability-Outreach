@@ -1,5 +1,6 @@
 
 import sqlite3, re
+from database import init_db   # <-- added
 
 DB = 'data/outreach.db'
 
@@ -47,6 +48,7 @@ def pick_best_email(email_str):
     return valid[0]
 
 def main():
+    init_db()   # <-- creates the table if missing
     conn = sqlite3.connect(DB)
     cur = conn.cursor()
     cur.execute("SELECT id, email FROM contacts WHERE email != ''")
